@@ -7,16 +7,16 @@ class BancoDeDados:
 
     def __init__ (self):
         
-        self.dataBase = 'bancoAlunos.db'
+        self.dataBase = 'bancoAlunosV2.db'
         self.conexao = sqlite.connect(self.dataBase)
-        self.dbCurse = self.conexao.cursor()
+        self.dbCursor = self.conexao.cursor()
         self.create()
 
          
     def create(self):
 
         try:
-            self.dbCurse.execute ("""
+            self.dbCursor.execute ("""
             CREATE TABLE IF NOT EXISTS alunos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome VARCHAR(100) NOT NULL,
@@ -32,7 +32,6 @@ class BancoDeDados:
         else:
             pass
 
-    # alterar e otimizar!
     def insert (self):
 
         try:
@@ -41,42 +40,38 @@ class BancoDeDados:
             sexo = input('Digite o sexo [ M / F ]: ')
             nascimento = input('Digite a data de nascimento (00/00/0000): ')
 
-            inserir = 'INSERT INTO alunos (nome, matricula, sexo, nascimento) VALUES (?, ?, ?, ?);'
-            self.conexao = sqlite.connect(self.dataBase)
-            self.dbCurse = self.conexao.cursor()
-            self.dbCurse.execute(inserir, [nome, matricula, sexo, nascimento])
-            self.conexao.commit()
+            self.dbCursor.execute('INSERT INTO alunos (nome, matricula, sexo, nascimento) VALUES (?, ?, ?, ?);', [nome, matricula, sexo, nascimento])
             
-
-            print('Cadastro realizado com sucesso!')
-
         except Exception as e:
-            print(f'Falha em cadastrar o aluno!\nErro: {e}')
-
-        finally:
-            self.dbCurse.close()
+            print(f'Falha em cadastrar o aluno!\nErro: {e}\n')
+            print(f'Desfazendo a operação')
+            self.conexao.rollback()
+            
+        else:
+            self.conexao.commit()
+            self.dbCursor.close()
             self.conexao.close()
-    
+            print('Cadastro realizado com sucesso!')
+           
     # corrigir e fazer alterações!
     def read (self):
 
         try:
             matricula = input('Informe a matrícula do aluno: ')
 
-            consulta = 'SELECT * FROM  alunos WHERE matricula = ?;'
-            self.conexao = sqlite.connect(self.dataBase)
-            self.dbCurse = self.conexao.cursor()
-            self.dbCurse.execute(consulta, [matricula])
-            dados = self.dbCurse.fetchone()
+            self.dbCursor.execute('SELECT * FROM  alunos WHERE matricula = ?;', [matricula])
+            dados = self.dbCursor.fetchone()
 
             print(f'Aluno: {dados[1]},\nMatrícula: {dados[2]},\nSexo: {dados[3]}')
 
-        except:
-            print('Matrícula não encontrada no sistema!')
+        except Exception as e:
+            print(f'Matrícula não encontrada no sistema!')
 
-        finally:
-            self.dbCurse.close()
+        else:
+            self.dbCursor.close()
             self.conexao.close()
+            print('\nConsulta finalizada.')
+            
 
     # corrigir e fazer alterações!
     def update (self):
@@ -87,42 +82,38 @@ class BancoDeDados:
             sexo = input('Digite o sexo [ M / F ]: ')
             nascimento = input('Digite a data de nascimento (00/00/0000): ')
 
-            atualizando = 'UPDATE alunos SET nome = ?, sexo = ?, nascimento = ? WHERE matricula = ?;'
-            self.conexao = sqlite.connect(self.dataBase)
-            self.dbCurse = self.conexao.cursor()
-            self.dbCurse.execute(atualizando, [nome, sexo, nascimento, matricula])
-            self.conexao.commit()
-            print('Cadastro atualizado com sucesso!')
+            self.dbCursor.execute('UPDATE alunos SET nome = ?, sexo = ?, nascimento = ? WHERE matricula = ?;', [nome, sexo, nascimento, matricula])
 
         except Exception as e:
-            print(f'Não foi possível alterar/atualizar os dados do cadastro.\nErro: {e}')
+            print(f'Não foi possível atualizar os dados do cadastro.\nErro: {e}')
             print(f'Desfazendo a última ação {e}')
             self.conexao.rollback()
 
-        finally:
-            self.dbCurse.close()
+        else:
+            self.conexao.commit()
+            self.dbCursor.close()
             self.conexao.close()
+            print('Dados do cadastro atualizados com sucesso!')
+
 
     def delete(self):
 
         try:
             matricula = input('Informe a matricula: ')
 
-            excluir = 'DELETE FROM alunos WHERE matricula = ?;'
-            self.conexao = sqlite.connect(self.dataBase)
-            self.dbCurse = self.conexao.cursor()
-            self.dbCurse.execute(excluir, [matricula])
-            self.conexao.commit()
-            print('O cadastro foi excluído com sucesso!')
+            self.dbCursor.execute('DELETE FROM alunos WHERE matricula = ?;', [matricula])
 
         except Exception as e:
             print(f'Falha na exclusão do cadastro.\nErro: {e}')
             print(f'Desfazendo a última ação {e}')
             self.conexao.rollback()
 
-        finally:
-            self.dbCurse.close()
+        else:
+            self.conexao.commit()
+            self.dbCursor.close()
             self.conexao.close()
+            print('O cadastro foi excluído com sucesso!')
+
 
 # Menu
 while True:
@@ -165,4 +156,3 @@ while True:
     print('Opção inválida! Use apenas números de 1 a 4.')
 
 print("Programa encerrado.")
-
