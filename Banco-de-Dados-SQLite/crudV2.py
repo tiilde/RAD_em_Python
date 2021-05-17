@@ -53,7 +53,7 @@ class BancoDeDados:
             self.conexao.close()
             print('Cadastro realizado com sucesso!')
            
-    # corrigir e fazer alterações!
+        
     def read (self):
 
         try:
@@ -95,7 +95,7 @@ class BancoDeDados:
             self.conexao.close()
             print('Dados do cadastro atualizados com sucesso!')
 
-
+    # corrigir e fazer alterações!
     def delete(self):
 
         try:
